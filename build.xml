@@ -20,7 +20,7 @@
 
 	<property file="${user.home}/.sonatype.properties" />
   
-	<target name="all" depends="unit_tests, acceptance_tests" description="Run this target any time you change code or acceptance tests. It will clean, then compile the source, run all the unit test and fitnesse acceptance tests."/>
+	<target name="all" depends="unit_tests, acceptance_tests, dbfit_acceptance_tests" description="Run this target any time you change code or acceptance tests. It will clean, then compile the source, run all the unit test and fitnesse acceptance tests."/>
   
 	<target name="build" depends="clean, compile" description="clean, then compile the source"/>
   	
@@ -269,6 +269,23 @@
 		<java jar="${dist.dir}/fitnesse-standalone.jar" failonerror="true" fork="true" output="fitnesse-results.xml">
 			<arg value="-c" />
 			<arg value="FitNesse.SuiteAcceptanceTests?suite&amp;format=xml" />
+		</java>
+	</target>
+
+	<target name="isDbFitSupportedJavaVersion">
+		<condition property="dbfitSupportedJavaVersion">
+			<or>
+				<equals arg1="${ant.java.version}" arg2="1.7"/>
+				<equals arg1="${ant.java.version}" arg2="1.8"/>
+			</or>
+		</condition>
+	</target>
+
+	<target name="dbfit_acceptance_tests" depends="standalone-jar, isDbFitSupportedJavaVersion" if="dbfitSupportedJavaVersion">
+		<echo message="props: ${dbfitSupportedJavaVersion} ${ant.java.version}"/>
+		<java jar="${dist.dir}/fitnesse-standalone.jar" failonerror="true" fork="true">
+			<arg value="-c" />
+			<arg value="FitNesse.SuiteDependentLibraries?suite&amp;format=xml"/>
 		</java>
 	</target>
 
